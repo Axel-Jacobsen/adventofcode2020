@@ -12,10 +12,11 @@ OCCUP = "#"
 def print_layout(layout):
     for l in layout:
         print("".join(l.tolist()))
+    print()
 
 
 def chg(seat, neighbors, n_threshold):
-    if seat == EMPTY and all([n == EMPTY or n == "." for n in neighbors]):
+    if seat == EMPTY and all([n == EMPTY or n == FLOOR for n in neighbors]):
         return OCCUP
     if seat == OCCUP and sum([int(n == OCCUP) for n in neighbors]) >= n_threshold:
         return EMPTY
@@ -31,7 +32,35 @@ def get_neighbors_p1(i, j, layout):
     return neighbors
 
 
-def step(prev_layout, next_layout, neighbor_fcn=get_neighbors_p1, n_threshold=4):
+def get_neighbors_p2(i, j, layout):
+    x_len, y_len = layout.shape
+
+    def mv_w_steps_fm_until(dx, dy, i, j):
+        cx = i + dx
+        cy = j + dy
+        while 0 <= cx < x_len and 0 <= cy < y_len:
+            if layout[cx, cy] != FLOOR:
+                return layout[cx, cy]
+            cx = cx + dx
+            cy = cy + dy
+        return FLOOR  # unoccupied
+
+    return [
+        mv_w_steps_fm_until(*dv, i, j)
+        for dv in (
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),
+        )
+    ]
+
+
+def step(prev_layout, next_layout, neighbor_fcn, n_threshold):
     x_len, y_len = prev_layout.shape
     for i in range(x_len):
         for j in range(y_len):
@@ -46,19 +75,18 @@ def iterate(neighbor_fcn, n_threshold):
         layout1 = np.asarray([list(row) for row in f.read().split("\n") if row != ""])
         layout2 = np.asarray([row[:] for row in layout1])
 
-        step(
-            layout1, layout2, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold
-        )  # init step
+        step(layout1, layout2, neighbor_fcn, n_threshold)  # init step
 
         i = 1
         while not np.array_equal(layout1, layout2):
             if i % 2 == 0:
-                step(layout1, layout2, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold)
+                step(layout1, layout2, neighbor_fcn, n_threshold)
             else:
-                step(layout2, layout1, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold)
+                step(layout2, layout1, neighbor_fcn, n_threshold)
             i += 1
 
     return (layout1 == OCCUP).astype(int).sum()
 
 
 print(iterate(get_neighbors_p1, 4))
+print(iterate(get_neighbors_p2, 5))
