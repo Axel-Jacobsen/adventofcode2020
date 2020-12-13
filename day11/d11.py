@@ -14,7 +14,7 @@ def print_layout(layout):
         print("".join(l.tolist()))
 
 
-def chg(seat, neighbors, n_threshold=4):
+def chg(seat, neighbors, n_threshold):
     if seat == EMPTY and all([n == EMPTY or n == "." for n in neighbors]):
         return OCCUP
     if seat == OCCUP and sum([int(n == OCCUP) for n in neighbors]) >= n_threshold:
@@ -31,30 +31,34 @@ def get_neighbors_p1(i, j, layout):
     return neighbors
 
 
-def step(prev_layout, next_layout, neighbor_fcn=get_neighbors_p1):
+def step(prev_layout, next_layout, neighbor_fcn=get_neighbors_p1, n_threshold=4):
     x_len, y_len = prev_layout.shape
     for i in range(x_len):
         for j in range(y_len):
             if prev_layout[i, j] == FLOOR:
                 continue
             neighbors = neighbor_fcn(i, j, prev_layout)
-            next_layout[i, j] = chg(prev_layout[i, j], neighbors)
+            next_layout[i, j] = chg(prev_layout[i, j], neighbors, n_threshold)
 
-def p1():
+
+def iterate(neighbor_fcn, n_threshold):
     with open("input.txt", "r") as f:
         layout1 = np.asarray([list(row) for row in f.read().split("\n") if row != ""])
         layout2 = np.asarray([row[:] for row in layout1])
 
-        step(layout1, layout2)  # init step
+        step(
+            layout1, layout2, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold
+        )  # init step
 
         i = 1
         while not np.array_equal(layout1, layout2):
             if i % 2 == 0:
-                step(layout1, layout2)
+                step(layout1, layout2, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold)
             else:
-                step(layout2, layout1)
+                step(layout2, layout1, neighbor_fcn=neighbor_fcn, n_threshold=n_threshold)
             i += 1
 
     return (layout1 == OCCUP).astype(int).sum()
 
-print(p1())
+
+print(iterate(get_neighbors_p1, 4))
