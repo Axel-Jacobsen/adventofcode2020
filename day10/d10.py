@@ -44,7 +44,7 @@ def get_io_pairs(fname="test_input.txt"):
         return joltage_ratings
 
 
-def get_jolts(fname="test_input.txt"):
+def get_jolts(fname):
     with open(fname, "r") as f:
         return sorted([int(v.strip()) for v in f.read().split("\n") if v != ""])
 
@@ -80,15 +80,17 @@ def get_next_valids(prev, joltages):
     return nexts
 
 
-def p2():
-    num_valids = 0
-    joltages = get_jolts()
-    valids_map = {v: get_next_valids(v, joltages[i+1:]) for i, v in enumerate(joltages)}
+def p2(fname):
+    num_valids = 1
+    joltages = get_jolts(fname)
+    valids_map = {v: [get_next_valids(v, joltages[i+1:]), 1] for i, v in enumerate(joltages)}
     print(valids_map)
-    # for i in range(1, len(condensed_joltages)):
-    #     previous, nextious = condensed_joltages[i-1]
-    #     print(previous, nextious, get_next_valids(nextious, condensed_joltages[i:]))
-
+    i = 0
+    for j in reversed(joltages[:-1]):
+        i += 1
+        valids_map[j][1] *= sum([valids_map[nv][1] for nv in valids_map[j][0]])
+        print(f"{j} {valids_map[j]}")
+    return valids_map[joltages[0]]
 
 print(p1())
-print(p2())
+print(p2("test_input_2.txt"))
