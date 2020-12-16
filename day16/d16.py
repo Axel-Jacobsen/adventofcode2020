@@ -96,7 +96,7 @@ def get_field_names_for_idxs(fields, my_ticket, valid_tickets):
             else:
                 field -= fixed_fields
 
-    # field decisions are done here
+    # each set has 1 element, pop and return final ans
     return [e.pop() for e in filtered_fields]
 
 
