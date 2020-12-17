@@ -83,7 +83,7 @@ x = 5 * 5 * 3 - 24 * 4 = -21
 """
 
 
-def format_bus_str(bus_str):
+def format_bus_str(bus_str, neg_idx=False):
     return sorted(
         [(i, int(b)) for i, b in enumerate(bus_str.strip().split(",")) if b != "x"],
         key=lambda v: v[1],
@@ -111,10 +111,10 @@ def get_earliest_timestamp_brute(busses):
             print(t)
 
 
-def brute_p2(fname):
+def p2(fname, fnc):
     with open(fname, "r") as f:
         f.readline()  # first line useless
-        return get_earliest_timestamp_brute(format_bus_str(f.readline()))
+        return fnc(format_bus_str(f.readline()))
 
 
 def bezout_coeff(a, b):
@@ -135,25 +135,25 @@ def bezout_coeff(a, b):
     return old_s, old_t
 
 
-def p2_chinese_remainder_thm(busses):
+def p2_mod_chinese_remainder_thm(busses):
     """
     busses is a list of k pairs [-a1,n1] for x = a1 (mod n1)
     for a1..ak and n1..nk
 
     e.g. we want
-    >>> p2_chinese_remainder_thm([
+    >>> p2_mod_chinese_remainder_thm([
             (0,3),
             (3,4),
             (4,5),
         ])
-    39
+    21
 
     for schedule "3,x,x,4,5"
     """
-    nai, ni = busses[0]
-    ai = -nai
-    for nac, nc in busses[1:]:
-        ac = - nac
+    busses = [(-i, b) for i,b in busses]
+
+    ai, ni = busses[0]
+    for ac, nc in busses[1:]:
         mi, mc = bezout_coeff(ni, nc)
         ai = ai * nc * mc + ac * ni * mi
         ni = ni * nc
@@ -184,9 +184,13 @@ def test_p2(p2_fnc):
 
 # print(p1())
 # test_p2(get_earliest_timestamp_brute)
-# test_p2(p2_chinese_remainder_thm)
-# print(brute_p2(fname="input.txt"))
+# test_p2(p2_mod_chinese_remainder_thm)
 
-print(format_bus_str("3,x,x,4,5"))
-print(get_earliest_timestamp_brute(format_bus_str("3,x,x,4,5")))
-print(p2_chinese_remainder_thm([[0, 3], [3, 4], [4, 5]]))
+print(get_earliest_timestamp_brute(format_bus_str("17,x,13,19")))
+print(p2_mod_chinese_remainder_thm(format_bus_str("17,x,13,19")), 3417)
+print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,59,61")), 754018)
+print(p2_mod_chinese_remainder_thm(format_bus_str("67,x,7,59,61")), 779210)
+print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,x,59,61")), 1261476)
+# print(p2_mod_chinese_remainder_thm(format_bus_str("1789,37,47,1889")), 1202161486)
+
+print(p2("input.txt", p2_mod_chinese_remainder_thm))
