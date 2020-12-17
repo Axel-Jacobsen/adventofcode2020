@@ -12,8 +12,8 @@ def closest_over(target, period):
             return i
 
 
-def p1():
-    with open("input.txt", "r") as f:
+def p1(fname):
+    with open(fname, "r") as f:
         earliest_timestamp = int(f.readline().strip())
         busses = [int(b) for b in f.readline().split(",") if b != "x"]
         earliests = sorted(
@@ -65,7 +65,7 @@ x = 4 (mod 5)  [3]
 First, apply Bezout's identity for 3 and 4
 (i.e. get 1 and -1 as the bezout coefficients)
 
-(1)*4 + (-1) * 3 = 1
+(1) * 4 + (-1) * 3 = 1
 
 Put this into the formula for x = a1m2n2 + a2m1n1 to get
 
@@ -80,7 +80,15 @@ Put this into the formula for x = a1m2n2 + a2m1n1 to get
 
 x = 5 * 5 * 3 - 24 * 4 = -21
 
+repeat this for all congruences, and add a multiple of ni to get the
+first positive number
 """
+
+
+def p2(fname, fnc):
+    with open(fname, "r") as f:
+        f.readline()  # first line useless
+        return fnc(format_bus_str(f.readline()))
 
 
 def format_bus_str(bus_str, neg_idx=False):
@@ -94,7 +102,6 @@ def format_bus_str(bus_str, neg_idx=False):
 def get_earliest_timestamp_brute(busses):
     lb_offset, lb = busses[0]
     t = lb
-    i = 0
     while True:
         valid = True
         for t_offset, bus_num in busses[1:]:
@@ -106,15 +113,6 @@ def get_earliest_timestamp_brute(busses):
             return t - lb_offset
 
         t += lb
-        i += 1
-        if i % 1000000 == 0:
-            print(t)
-
-
-def p2(fname, fnc):
-    with open(fname, "r") as f:
-        f.readline()  # first line useless
-        return fnc(format_bus_str(f.readline()))
 
 
 def bezout_coeff(a, b):
@@ -149,12 +147,6 @@ def p2_mod_chinese_remainder_thm(busses):
     21
 
     for schedule "3,x,x,4,5"
-
-    This is still too slow - I am not sure that multithreading
-    would help, as that would change the number of calculations
-    from len(busses) to len(busses) + len(busses) / 2 + len(busses) / 4
-    + ... + 1
-    Although executed in parallel, I don't think there will be a huge improvement
     """
     # Our system of equations comes out to
     # the indexes being negative for CRT
@@ -166,16 +158,10 @@ def p2_mod_chinese_remainder_thm(busses):
         ai = ai * nc * mc + ac * ni * mi
         ni = ni * nc
 
-    while ai < 0:
-        ai += ni
-
-    return ai
+    return ai + ni * (abs(ai) // ni + 1)
 
 
 def test_p2(p2_fnc):
-    assert (
-        p2_fnc(format_bus_str("17,x,13,19")) == 3417
-    ), f'{p2_fnc(format_bus_str("17,x,13,19"))}, 3417'
     assert (
         p2_fnc(format_bus_str("67,7,59,61")) == 754018
     ), f'{p2_fnc(format_bus_str("67,7,59,61"))}, 754018'
@@ -190,15 +176,8 @@ def test_p2(p2_fnc):
     ), f'{p2_fnc(format_bus_str("1789,37,47,1889"))}, 1202161486'
 
 
-print(p1())
-test_p2(get_earliest_timestamp_brute)
-test_p2(p2_mod_chinese_remainder_thm)
-
-print(get_earliest_timestamp_brute(format_bus_str("17,x,13,19")))
-print(p2_mod_chinese_remainder_thm(format_bus_str("17,x,13,19")), 3417)
-print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,59,61")), 754018)
-print(p2_mod_chinese_remainder_thm(format_bus_str("67,x,7,59,61")), 779210)
-print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,x,59,61")), 1261476)
-print(p2_mod_chinese_remainder_thm(format_bus_str("1789,37,47,1889")), 1202161486)
-
-print(p2("input.txt", p2_mod_chinese_remainder_thm))
+if __name__ == "__main__":
+    print(p1(fname="input.txt"))
+    test_p2(get_earliest_timestamp_brute)
+    test_p2(p2_mod_chinese_remainder_thm)
+    print(p2("input.txt", p2_mod_chinese_remainder_thm))
