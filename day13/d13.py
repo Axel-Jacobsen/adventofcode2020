@@ -149,8 +149,16 @@ def p2_mod_chinese_remainder_thm(busses):
     21
 
     for schedule "3,x,x,4,5"
+
+    This is still too slow - I am not sure that multithreading
+    would help, as that would change the number of calculations
+    from len(busses) to len(busses) + len(busses) / 2 + len(busses) / 4
+    + ... + 1
+    Although executed in parallel, I don't think there will be a huge improvement
     """
-    busses = [(-i, b) for i,b in busses]
+    # Our system of equations comes out to
+    # the indexes being negative for CRT
+    busses = [(-i, b) for i, b in busses]
 
     ai, ni = busses[0]
     for ac, nc in busses[1:]:
@@ -182,15 +190,15 @@ def test_p2(p2_fnc):
     ), f'{p2_fnc(format_bus_str("1789,37,47,1889"))}, 1202161486'
 
 
-# print(p1())
-# test_p2(get_earliest_timestamp_brute)
-# test_p2(p2_mod_chinese_remainder_thm)
+print(p1())
+test_p2(get_earliest_timestamp_brute)
+test_p2(p2_mod_chinese_remainder_thm)
 
 print(get_earliest_timestamp_brute(format_bus_str("17,x,13,19")))
 print(p2_mod_chinese_remainder_thm(format_bus_str("17,x,13,19")), 3417)
 print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,59,61")), 754018)
 print(p2_mod_chinese_remainder_thm(format_bus_str("67,x,7,59,61")), 779210)
 print(p2_mod_chinese_remainder_thm(format_bus_str("67,7,x,59,61")), 1261476)
-# print(p2_mod_chinese_remainder_thm(format_bus_str("1789,37,47,1889")), 1202161486)
+print(p2_mod_chinese_remainder_thm(format_bus_str("1789,37,47,1889")), 1202161486)
 
 print(p2("input.txt", p2_mod_chinese_remainder_thm))
