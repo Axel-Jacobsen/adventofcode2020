@@ -27,7 +27,7 @@ def get_max_bounds(actives):
         min_z = min(min_z, active[2])
         max_z = max(max_z, active[2])
 
-    return min_x - 5, max_x + 5, min_y - 5, max_y + 5, min_z - 5, max_z + 5
+    return min_x - 2, max_x + 2, min_y - 2, max_y + 2, min_z - 2, max_z + 2
 
 
 def chg(actives):
