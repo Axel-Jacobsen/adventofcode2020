@@ -112,5 +112,6 @@ def p2(fname):
             prod *= my_ticket[i]
     return prod
 
+
 print(p1("input.txt"))
 print(p2("input.txt"))

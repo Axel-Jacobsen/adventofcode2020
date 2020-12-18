@@ -37,9 +37,9 @@ def get_all_floating_addrs(v):
 def p1():
     with open("input.txt", "r") as f:
         MASK = ""
-        mem  = dict()
+        mem = dict()
         for line in f:
-            s,v = line.strip().split(" = ")
+            s, v = line.strip().split(" = ")
             if s == "mask":
                 MASK = v
             else:
@@ -51,9 +51,9 @@ def p1():
 def p2():
     with open("input.txt", "r") as f:
         MASK = ""
-        mem  = dict()
+        mem = dict()
         for line in f:
-            s,v = line.strip().split(" = ")
+            s, v = line.strip().split(" = ")
             if s == "mask":
                 MASK = v
             else:

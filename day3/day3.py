@@ -13,6 +13,7 @@ def g(data, dx, dy):
 
     return trees
 
+
 with open("input.txt", "r") as f:
     data = []
     for line in f.readlines():

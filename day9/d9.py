@@ -13,13 +13,16 @@ a and b are not unique
 
 find the first number which does not have this property
 """
+
+
 def part1():
     with open("input.txt", "r") as f:
         inp = [int(v) for v in f.read().split("\n") if v != ""]
         for i in range(PREAMBLE_LEN, len(inp)):
             found_sum = False
             for j in range(PREAMBLE_LEN):
-                if found_sum: break
+                if found_sum:
+                    break
                 for k in range(j, PREAMBLE_LEN):
                     if inp[i - j - 1] + inp[i - k - 1] == inp[i]:
                         found_sum = True
@@ -36,8 +39,11 @@ def part2(target):
             for i in range(len(inp) - contiguous_sz):
                 if inp[i + contiguous_sz] == target:
                     break
-                if sum(inp[i:i+contiguous_sz]) == target:
-                    return min(inp[i:i+contiguous_sz]) + max(inp[i:i+contiguous_sz])
+                if sum(inp[i : i + contiguous_sz]) == target:
+                    return min(inp[i : i + contiguous_sz]) + max(
+                        inp[i : i + contiguous_sz]
+                    )
+
 
 target = part1()
 print("part1", target)

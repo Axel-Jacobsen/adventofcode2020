@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 
-with open('input.txt', 'r') as f:
+with open("input.txt", "r") as f:
     num_valid = 0
     for line in f.readlines():
         policy, pwd = line.split(": ")
@@ -12,7 +12,7 @@ with open('input.txt', 'r') as f:
     print("part 1", num_valid)
 
 
-with open('input.txt', 'r') as f:
+with open("input.txt", "r") as f:
     num_valid = 0
     for line in f.readlines():
         policy, pwd = line.split(": ")

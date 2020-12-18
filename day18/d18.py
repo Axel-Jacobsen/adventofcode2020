@@ -68,7 +68,7 @@ def preprocess_p2(s):
     while i < len(expr):
         if expr[i] == "+":
             prev_v = final_expr.pop()
-            final_expr.append([prev_v, "+", expr[i+1]])
+            final_expr.append([prev_v, "+", expr[i + 1]])
             i += 2
         else:
             final_expr.append(expr[i])
