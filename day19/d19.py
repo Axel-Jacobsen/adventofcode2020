@@ -19,19 +19,20 @@ def get_rule_dict(rules):
     return rule_dict
 
 
-rule_cache = dict()
+RULE_CACHE = dict()
 
 
 def evaluate(rule_dict, k):
     """Return list of strings that are valid according to rule k"""
-    global rule_cache
-    if k in rule_cache.keys():
-        return rule_cache[k]
+    global RULE_CACHE
+    if k in RULE_CACHE.keys():
+        return RULE_CACHE[k]
 
     subv = rule_dict[k]
     options = []
     for opt in subv:
         strs = [""]
+        found_loop = False
         for val in opt:
             if isinstance(val, str):
                 # add val to the end of every str in strs
@@ -48,19 +49,22 @@ def evaluate(rule_dict, k):
                         new_strs.append(s + val_opt)
                     i += 1
                 strs = new_strs
+
         options.extend(strs)
 
-    rule_cache[k] = options
+    RULE_CACHE[k] = options
     return options
 
 
 def p1(fname):
     import time
+
     with open(fname, "r") as f:
         rules_str, msgs_str = f.read().split("\n\n")
 
     rd = get_rule_dict(rules_str)
     msgs = msgs_str.strip().split("\n")
+    max_msg_len = max([len(m) for m in msgs])
 
     t0 = time.time()
     rules = evaluate(rd, 0)
@@ -76,4 +80,4 @@ def p2(fname):
     contents = proc_f(fname)
 
 
-print(p1("input.txt"))
+print(p1("test_input_4.txt"))
