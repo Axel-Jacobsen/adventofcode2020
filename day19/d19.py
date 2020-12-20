@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 
 
+from functools import cache
+
+
 def get_rule_dict(rules):
     """
     k: [[opt1], [opt2], ...] where union of opts is the string
@@ -16,8 +19,15 @@ def get_rule_dict(rules):
     return rule_dict
 
 
+rule_cache = dict()
+
+
 def evaluate(rule_dict, k):
     """Return list of strings that are valid according to rule k"""
+    global rule_cache
+    if k in rule_cache.keys():
+        return rule_cache[k]
+
     subv = rule_dict[k]
     options = []
     for opt in subv:
@@ -40,25 +50,21 @@ def evaluate(rule_dict, k):
                 strs = new_strs
         options.extend(strs)
 
+    rule_cache[k] = options
     return options
 
 
-def eval_msg(msg, rule_dict):
-    """
-    Need to construct "match options" from rule_dict, and compare those to the msg.
-    Rule 0 is the cardinal rule.
-    """
-    print()
-
-
 def p1(fname):
+    import time
     with open(fname, "r") as f:
         rules_str, msgs_str = f.read().split("\n\n")
 
     rd = get_rule_dict(rules_str)
-    rules = evaluate(rd, 0)
-
     msgs = msgs_str.strip().split("\n")
+
+    t0 = time.time()
+    rules = evaluate(rd, 0)
+    print(time.time() - t0)
 
     s = 0
     for msg in msgs:
