@@ -132,14 +132,22 @@ def p2(fname):
     # So now we have the RULE_CACHE (in var partial_rd), which is a filled out
     # rule_dict with strings instead of the rules, except for rules which contain
     # loops. We now try to lazily evaluate the messages.
+    t0  = time.time()
     num_valid = 0
     for msg in msgs:
+        fnd = False
         for pre_v, post_v in get_matching_partials(msg, rd[8], partial_rd):
             for pre_w, post_w in get_matching_partials(post_v, rd[11], partial_rd):
-                num_valid += int(post_w == "")
+                if post_w == "":
+                    fnd = True
+                    num_valid += 1
+                    break
+            if fnd:
+                break
 
+    print(time.time() - t0)
     return num_valid
 
 
-print(p1("test_input_4.txt"))
+print(p1("input_2.txt"))
 print(p2("input_2.txt"))
