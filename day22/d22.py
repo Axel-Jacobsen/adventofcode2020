@@ -60,5 +60,5 @@ def calculate_score(deck):
 
 print(calculate_score(combat(*read("input.txt"))))
 
-p1_won, deck = recursive_combat(*read("test_input.txt"))
+p1_won, deck = recursive_combat(*read("input.txt"))
 print(calculate_score(deck))
