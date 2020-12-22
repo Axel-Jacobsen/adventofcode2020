@@ -33,21 +33,20 @@ def evaluate(rule_dict):
         options = []
         for opt in subv:
 
-            if k in opt and skip_loops:
+            if k in opt:
                 loop_keys.add(k)
                 continue
 
             strs = [""]
             for val in opt:
                 if isinstance(val, str):
-                    # add val to the end of every str in strs
                     i = 0
                     while i < len(strs):
                         strs[i] += val
                         i += 1
                 elif isinstance(val, int):
                     if val == k:
-                        if loop_cnts[k] == 4:
+                        if loop_cnts[k] == 1:
                             break
                         else:
                             loop_cnts[k] += 1
@@ -71,27 +70,13 @@ def evaluate(rule_dict):
     return r0, loop_keys, RULE_CACHE
 
 
-def evaluate_loops(msgs, loop_keys, RULE_CACHE):
-    for msg in msgs:
-        subv = rule_dict[0]
-        options = []
-        for opt in subv:
-            if k in opt and skip_loops:
-                loop_keys.add(k)
-                continue
-
-            strs = [""]
-            for val in opt:
-
-
 def p1(fname):
     import time
 
     with open(fname, "r") as f:
         rules_str, msgs_str = f.read().split("\n\n")
-
-    rd = get_rule_dict(rules_str)
-    msgs = msgs_str.strip().split("\n")
+        rd = get_rule_dict(rules_str)
+        msgs = msgs_str.strip().split("\n")
 
     t0 = time.time()
     r0, loop_keys, RULE_CACHE = evaluate(rd)
@@ -104,8 +89,57 @@ def p1(fname):
     return s
 
 
+def get_matching_partials(msg, rule_options, rule_dict):
+    """give this rd[8] == [[42], [42, 42], ...]
+    yield matching substrings of msg starting from end
+    of match of rd
+
+    only 1 of the rule strings will start out msg
+    """
+    for rule_opt in rule_options:
+        consumed_len = 0
+        prev_rule_int_successful = True
+
+        for rule_int in rule_opt:
+
+            rule_str_len = len(rule_dict[rule_int][0])
+
+            if msg[consumed_len : consumed_len + rule_str_len] in rule_dict[rule_int]:
+                consumed_len += rule_str_len
+            else:
+                prev_rule_int_successful = False
+                break
+
+        if prev_rule_int_successful:
+            yield msg[:consumed_len], msg[consumed_len:]
+
+
 def p2(fname):
-    contents = proc_f(fname)
+    import time
+
+    with open(fname, "r") as f:
+        rules_str, msgs_str = f.read().split("\n\n")
+        rd = get_rule_dict(rules_str)
+        msgs = msgs_str.strip().split("\n")
+
+    t0 = time.time()
+    _, loop_keys, partial_rd = evaluate(rd)
+    print(time.time() - t0)
+
+    rd[8] = [[42], [42, 42], [42, 42, 42], [42, 42, 42, 42], [42, 42, 42, 42, 42], [42, 42, 42, 42, 42, 42], [42, 42, 42, 42, 42, 42, 42], [42, 42, 42, 42, 42, 42, 42, 42], [42, 42, 42, 42, 42, 42, 42, 42, 42]]
+    rd[11] = [[42, 31], [42, 42, 31, 31], [42, 42, 42, 31, 31, 31], [42, 42, 42, 42, 31, 31, 31, 31], [42, 42, 42, 42, 42, 31, 31, 31, 31, 31], [42, 42, 42, 42, 42, 42, 31, 31, 31, 31, 31, 31]]
+
+    # So now we have the RULE_CACHE (in var partial_rd), which is a filled out
+    # rule_dict with strings instead of the rules, except for rules which contain
+    # loops. We now try to lazily evaluate the messages.
+    num_valid = 0
+    for msg in msgs:
+        for pre_v, post_v in get_matching_partials(msg, rd[8], partial_rd):
+            for pre_w, post_w in get_matching_partials(post_v, rd[11], partial_rd):
+                num_valid += int(post_w == "")
+
+    return num_valid
 
 
 print(p1("test_input_4.txt"))
+print(p2("input_2.txt"))
