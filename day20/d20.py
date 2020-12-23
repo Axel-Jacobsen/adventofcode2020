@@ -88,9 +88,7 @@ def get_tcs_by_pair(num1, num2, tile_connections):
     return get_tcs_by_num(num1, get_tcs_by_num(num2, tile_connections))
 
 
-def p1(fname):
-    tiles = get_tiles(fname)
-
+def get_tile_connections(tiles):
     tile_connections = set()
     for tn1, t1 in tiles.items():
         for tn2, t2 in tiles.items():
@@ -107,12 +105,26 @@ def p1(fname):
                     tile_connections.add(
                         TileEdgeMatch(tn1, tn2, t1_edge_code, t2_edge_code)
                     )
+    return tile_connections
+
+
+def p1(fname):
+    tiles = get_tiles(fname)
+    tile_connections = get_tile_connections(tiles)
 
     d = defaultdict(int)
 
     for tc in tile_connections:
         d[tc.tn1] += 1
         d[tc.tn2] += 1
+
+    img_height_b, img_width_b = tiles[next(iter(tiles))].shape
+
+    img_height = img_height_b - 2
+    img_width = img_width_b - 2
+
+    # for tem in tile_connections:
+        
 
     p = 1
     for k, v in d.items():
@@ -122,4 +134,9 @@ def p1(fname):
     return p
 
 
-print(p1("input.txt"))
+def p2(fname):
+    tiles = get_tiles(fname)
+    tile_connections = get_tile_connections(tiles)
+
+
+print(p1("test_input.txt"))
