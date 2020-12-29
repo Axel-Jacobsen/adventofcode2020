@@ -25,9 +25,8 @@ def _get(arr, idx):
         return None
 
 
-def move(cups, current):
-    c = cups[:]
-    idx = cups.index(current)
+def move(c, current):
+    idx = c.index(current)
 
     if idx > len(c):
         raise RuntimeError(f"current cup idx {idx} out of list range")
@@ -44,8 +43,8 @@ def move(cups, current):
 
     destination = current - 1
     while (destination_idx := _get(c, destination)) is None:
-        if destination < min(c):
-            destination = max(c)
+        if destination < 1:
+            destination = 1000000
         else:
             destination -= 1
 
@@ -64,4 +63,17 @@ def p1(inp):
     return a
 
 
+def p2(inp):
+    import time
+    a, idx = inp + [i for i in range(10, 1000001)], inp[0]
+    t0 = time.time()
+    for _ in range(10000000):
+        a, idx = move(a, idx)
+        if _ % 1000 == 0:
+            print(_, time.time() - t0)
+            t0 = time.time()
+    ind_1 = a.index(1)
+    return a[ind_1+1] * a[ind_1+2]
+
 print(p1(real_input))
+print(p2(real_input))
