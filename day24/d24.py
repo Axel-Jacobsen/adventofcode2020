@@ -65,11 +65,13 @@ dirs = [
 
 @functools.cache
 def _neighbors_of(i, j, k):
-    return {(i + l, j + m, k + n) for l,m,n in dirs}
+    return {(i + l, j + m, k + n) for l, m, n in dirs}
+
 
 def neighbors_of(i, j, k, black_tiles):
-    n = _neighbors_of(i,j,k)
+    n = _neighbors_of(i, j, k)
     return black_tiles.intersection(n)
+
 
 def get_max_bounds(black_tiles):
     activ_iter = iter(black_tiles)
@@ -112,7 +114,7 @@ def chg(black_tiles):
     all_possible_flips = set(
         itertools.product(range(min_x, max_x), range(min_y, max_y), range(min_z, max_z))
     )
-    for (i,j,k) in all_possible_flips - black_tiles:
+    for (i, j, k) in all_possible_flips - black_tiles:
         neigbors = neighbors_of(i, j, k, black_tiles)
         if len(neigbors) == 2:
             next_black_tiles.add((i, j, k))

@@ -124,7 +124,6 @@ def p1(fname):
     img_width = img_width_b - 2
 
     # for tem in tile_connections:
-        pass
 
     p = 1
     for k, v in d.items():

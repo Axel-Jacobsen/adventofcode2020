@@ -32,4 +32,5 @@ def p1(ck, dk):
     print(card_loop_num, door_loop_num)
     return transform(ck, door_loop_num)
 
+
 print(p1(card_key, door_key))
