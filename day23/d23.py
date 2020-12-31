@@ -18,44 +18,31 @@ real_input = [int(v) for v in list(str(712643589))]
 3. Place the 3 removed cups immediately clockwise of the destination cup, maintaining the
    same pick-up order.
 4. Select a new current cup, which is immediately clockwise of the current cup
+
+solving p2 with DLL and value-node map gives an answer in ~31 seconds
 """
 
 
-def move_slow(c, current):
-    def _get(arr, idx):
-        try:
-            return arr.index(idx)
-        except ValueError:
-            return None
+def move(curr_node, max=10000000, v_n: dict = None):
+    # - curr_node is in the double-linked-list (DLL)
+    # - v_n is a dict of values to nodes with those values,
+    # - max is the maximum value in the DLL, so we don't have to search
+    #   for the max value each time
 
-    idx = c.index(current)
+    popped = remove_3_after(curr_node)
+    popped_values = get_value_set(popped)
 
-    if idx > len(c):
-        raise RuntimeError(f"current cup idx {idx} out of list range")
+    next_destination_val = curr_node.value - 1
+    if next_destination_val < 1:
+        next_destination_val = max
 
-    if idx + 3 < len(c):
-        rem = c[idx + 1 : idx + 4]
-        del c[idx + 1 : idx + 4]
-    else:
-        lower = min(idx + 1, len(c))
-        upper = idx + 4 - len(c)
-        rem = c[lower:] + c[:upper]
-        del c[lower:]
-        del c[:upper]
+    while next_destination_val in popped_values:
+        v = next_destination_val - 1
+        next_destination_val = max if v < 1 else v
 
-    destination = current - 1
-    while (destination_idx := _get(c, destination)) is None:
-        if destination < 1:
-            destination = 1000000
-        else:
-            destination -= 1
-
-    new = c[: destination_idx + 1] + rem + c[destination_idx + 1 :]
-    next_val = (
-        new[new.index(current) + 1] if new.index(current) != len(new) - 1 else new[0]
-    )
-
-    return new, next_val
+    next_destination = v_n[next_destination_val]
+    insert_chain_after(next_destination, popped)
+    return curr_node.nxt
 
 
 class Node:
@@ -68,29 +55,6 @@ class Node:
         nxt = None if self.nxt is None else self.nxt.value
         prv = None if self.prv is None else self.prv.value
         return f"<prv:{prv} this:{self.value} nxt:{nxt}>"
-
-    def copy(self):
-        return Node(self.value, self.nxt, self.prv)
-
-
-def find(node, value, reverse=False):
-    s = set()
-    while node.value not in s:
-        if node.value == value:
-            return node
-        s.add(node.value)
-        node = node.prv if reverse else node.nxt
-    raise RuntimeError("Could not find value")
-
-
-def move(curr_node):
-    """
-    linkedlist!
-
-    cd is a dualdict from index to value
-    idx is the index of the current val
-    """
-    popped = remove_3_after(curr_node)
 
 
 def insert_chain_after(curr_node, chain):
@@ -126,15 +90,35 @@ def iterate(node):
         n = n.nxt
 
 
-def print_chain(node):
+def get_value_node_dict(node):
+    v_n = dict()
+    for x in iterate(node):
+        if x.value in v_n.keys():
+            break
+        v_n[x.value] = x
+    return v_n
+
+
+def get_value_set(node):
     a_s = set()
     for x in iterate(node):
         if x is None:
             break
         if x.value in a_s:
             break
-        print(x)
         a_s.add(x.value)
+    return a_s
+
+
+def get_value_chain(node):
+    a_s = []
+    for x in iterate(node):
+        if x is None:
+            break
+        if x.value in a_s:
+            break
+        a_s.append(x.value)
+    return a_s
 
 
 def construct_DLL(values):
@@ -151,30 +135,33 @@ def construct_DLL(values):
 
 
 def p1(inp):
-    a, idx = inp, inp[0]
+    current = construct_DLL(inp)
+    vnd = get_value_node_dict(current)
     for _ in range(100):
-        a, idx = move_slow(a, idx)
-    return a
+        current = move(current, max=max(inp), v_n=vnd)
+
+    return get_value_chain(current)
 
 
 def p2(inp):
-    a = inp + [i for i in range(10, 1000001)]
-    current = construct_LL(a)
-    for _ in range(10000000):
-        current = move(current)
+    arrlen = int(1e6)
+    numiters = int(1e7)
+    a = inp + [i for i in range(10, arrlen + 1)]
+    current = construct_DLL(a)
 
-    # todo do these
-    ind_1 = a.index(1)
-    return a[ind_1 + 1] * a[ind_1 + 2]
+    vnd = get_value_node_dict(current)
+    for _ in range(numiters):
+        current = move(current, max=arrlen, v_n=vnd)
+
+    return vnd[1].nxt.value * vnd[1].nxt.nxt.value
 
 
-if __name__ == "__main__":
-    a = construct_LL(list(range(25)))
-    start = move(a)
+import time
 
-    print_chain(a)
-    print()
-    print_chain(start)
+t0 = time.time()
+print(p1(real_input))
+print(f"dll {time.time() - t0}")
 
-# print(p1(real_input))
-# print(p2(real_input))
+t0 = time.time()
+print(p2(real_input))
+print(f"dll {time.time() - t0}")
